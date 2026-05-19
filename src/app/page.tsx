@@ -1,5 +1,6 @@
 // import Image from "next/image";
-import LoginButton from "@/components/LoginButton";
+import LoginButton from "@/components/auth/LoginButton";
+import SignupForm from "@/components/auth/SignupForm";
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <div>
         Abebooks App
       </div>
-      <LoginButton />
+      
     </div>
   );
 }
