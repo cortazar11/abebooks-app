@@ -1,19 +1,27 @@
 import { getServerSession } from "next-auth"
-import { sql } from "@vercel/postgres" // or your Neon client
+import { prisma } from "@/lib/prisma"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export async function POST(req) {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
 
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 })
+  if (!session?.user?.email) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { title, author, price, description } = await req.json()
+  const body = await req.json()
 
-  await sql`
-    INSERT INTO books (title, author, price, description, seller_id)
-    VALUES (${title}, ${author}, ${price}, ${description}, ${session.user.id})
-  `
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  })
 
-  return Response.json({ success: true })
+  const book = await prisma.book.create({
+    data: {
+      title: body.title,
+      price: body.price,
+      sellerId: user.id,
+    },
+  })
+
+  return Response.json(book)
 }

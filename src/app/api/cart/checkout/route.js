@@ -95,8 +95,10 @@ export async function POST(req) {
         orderId: order.id,
       },
 
-      success_url: "http://localhost:3000/success",
-      cancel_url: "http://localhost:3000/cancel",
+      // success_url: "http://localhost:3000/success",
+      // cancel_url: "http://localhost:3000/cancel",
+      success_url: "https://abebooks-app.vercel.app/success",
+      cancel_url: "https://abebooks-app.vercel.app/cancel",
     })
 
     // 8. Save Stripe session ID
