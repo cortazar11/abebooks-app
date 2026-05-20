@@ -9,49 +9,42 @@ export async function POST(req) {
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
+      where: { email: session.user.email },
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // const { bookId } = await req.json()
+    const { bookId } = await req.json()
+
+    if (!bookId) {
+      return NextResponse.json({ error: "Missing bookId" }, { status: 400 })
+    }
 
     const cart = await prisma.cart.findUnique({
-        where: { userId: order.buyerId },
-     })
+      where: { userId: user.id },
+    })
 
     if (!cart) {
-      return NextResponse.json(
-        { error: "Cart not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Cart not found" }, { status: 404 })
     }
 
-    if (cart) {
-      await prisma.cartItem.deleteMany({
-        where: {
+    await prisma.cartItem.delete({
+      where: {
+        cartId_bookId: {
           cartId: cart.id,
-          },
-     })
-   }
-
-    return NextResponse.json({
-      success: true,
+          bookId,
+        },
+      },
     })
+
+    return NextResponse.json({ success: true })
+
   } catch (err) {
     console.error("REMOVE_CART_ERROR:", err)
 
