@@ -28,13 +28,11 @@ export async function POST(req) {
       )
     }
 
-    const { bookId } = await req.json()
+    // const { bookId } = await req.json()
 
     const cart = await prisma.cart.findUnique({
-      where: {
-        userId: user.id,
-      },
-    })
+        where: { userId: order.buyerId },
+     })
 
     if (!cart) {
       return NextResponse.json(
@@ -43,14 +41,13 @@ export async function POST(req) {
       )
     }
 
-    await prisma.cartItem.delete({
-      where: {
-        cartId_bookId: {
+    if (cart) {
+      await prisma.cartItem.deleteMany({
+        where: {
           cartId: cart.id,
-          bookId,
-        },
-      },
-    })
+          },
+     })
+   }
 
     return NextResponse.json({
       success: true,
