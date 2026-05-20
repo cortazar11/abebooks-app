@@ -11,12 +11,18 @@ export async function createBook(formData) {
   if (!session) throw new Error("Unauthorized")
 
   const title = formData.get("title")
-  const price = formData.get("price")
+  const priceRaw = formData.get("price")
+
+  const price = Number(priceRaw)
+
+  if (!title || !priceRaw || isNaN(price)) {
+    throw new Error("Invalid input")
+  }
 
   await prisma.book.create({
     data: {
-      title,
-      price: parseFloat(price),
+      title: String(title),
+      price,
       sellerId: session.user.id,
     },
   })
